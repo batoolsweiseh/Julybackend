@@ -1,7 +1,10 @@
 import nodemailer from "nodemailer";
 import { Resend } from "resend";
 
-const resend = new Resend(process.env["RESEND_API_KEY"]);
+const getResendClient = () => {
+  const apiKey = process.env["RESEND_API_KEY"] || "re_placeholder_key";
+  return new Resend(apiKey);
+};
 
 // Create Nodemailer Transporter (for Gmail or other SMTP)
 const transporter = nodemailer.createTransport({
@@ -27,6 +30,7 @@ export const sendOtpEmail = async (email: string, firstName: string, otp: string
       return { success: true, method: "nodemailer" };
     } else {
       // Use Resend (Fallback or Default)
+      const resend = getResendClient();
       const { data, error } = await resend.emails.send({
         from: "July <onboarding@resend.dev>", 
         to: [email],
